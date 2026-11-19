@@ -1,4 +1,4 @@
-FROM php:8.5.12-apache-trixie@sha256:08af36df144462d84c7f16190557eec06cb9f656882685610b712a15eec54d46
+FROM php:8.5.13-apache-trixie@sha256:0110f2cd5f4d58417afc7340b22c4ddcce54e970b87c03a6c77259b07b47c325
 
 LABEL org.opencontainers.image.title="GLPI AWS Modernization"
 LABEL org.opencontainers.image.description="Unofficial GLPI container for automated cloud deployments"
@@ -70,6 +70,15 @@ RUN sed -i 's/Listen 80$/Listen 8080/' /etc/apache2/ports.conf \
         /var/run/apache2 \
         /var/lock/apache2 \
         /var/log/apache2
+
+# HEALTHCHECKS
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD curl -fsS http://localhost:8080/ || exit 1
+
+# SCRIPT FOR AUTO INITIALISING
+COPY --chmod=755 entrypoint.sh /usr/local/bin/glpi-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/glpi-entrypoint.sh"]
+CMD ["apache2-foreground"]
 
 # Run as a non-privileged user
 USER www-data
