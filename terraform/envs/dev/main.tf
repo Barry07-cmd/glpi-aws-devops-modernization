@@ -15,3 +15,9 @@ module "network" {
   source = "../../modules/network"
   name   = "glpi-dev"
 }
+
+module "ecr" {
+  source       = "../../modules/ecr"
+  name         = "glpi-modernization"
+  force_delete = true
+}
